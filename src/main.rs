@@ -24,7 +24,9 @@ impl EventHandler for Bot {
 }
 
 #[shuttle_runtime::main]
-async fn serenity(#[shuttle_secrets::Secrets] secret_store: SecretStore,) -> shuttle_serenity::ShuttleSerenity {
+async fn serenity(
+    #[shuttle_secrets::Secrets] secret_store: SecretStore,
+) -> shuttle_serenity::ShuttleSerenity {
     // Get the discord token set in `Secrets.toml`
     let token = if let Some(token) = secret_store.get("DISCORD_TOKEN") {
         token
