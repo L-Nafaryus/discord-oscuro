@@ -1,5 +1,5 @@
 [package]
-name = "oscuro"
+name = "oscuro-discord-bot"
 version = "0.1.0"
 edition = "2021"
 
