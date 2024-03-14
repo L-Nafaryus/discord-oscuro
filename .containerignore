@@ -1,0 +1,6 @@
+**
+!lib/**
+!CMakeLists.txt
+!main.cc
+!include.hh
+!extern.cc
