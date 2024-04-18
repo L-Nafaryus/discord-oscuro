@@ -1,0 +1,9 @@
+[package]
+name = "oscuro-shuttle"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+oscuro-core = { version = "0.1.0", path = "../oscuro-core" }
+shuttle-runtime = "0.43.0"
+shuttle-serenity = "0.43.0"
