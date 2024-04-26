@@ -21,7 +21,7 @@ pub async fn client(state: AppState) -> Result<Client, BoxedError> {
     let state_copy = state.clone();
     let framework = poise::Framework::builder()
         .options(poise::FrameworkOptions {
-            commands: vec![commands::register(), commands::age()],
+            commands: vec![commands::register(), commands::age(), commands::dice()],
             event_handler: |ctx, event, framework, data| {
                 Box::pin(event_handler(ctx, event, framework, data))
             },

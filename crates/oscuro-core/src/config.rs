@@ -33,7 +33,7 @@ impl Config {
 impl Default for Config {
     fn default() -> Self {
         Self {
-            discord_token: String::from("Bot ###"),
+            discord_token: String::new(),
         }
     }
 }

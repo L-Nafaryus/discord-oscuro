@@ -6,6 +6,8 @@ edition = "2021"
 [dependencies]
 oscuro-core = { version = "0.1.0", path = "crates/oscuro-core" }
 tokio = { version = "1.26.0", features = ["macros", "rt-multi-thread"] }
+tracing = "0.1.40"
+tracing-subscriber = { version = "0.3.18", features = ["env-filter"] }
 
 [workspace]
 resolver = "2"

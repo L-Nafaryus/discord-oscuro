@@ -1,2 +1,5 @@
+/result
 /target
 Secrets*.toml
+/temp
+.tmp
