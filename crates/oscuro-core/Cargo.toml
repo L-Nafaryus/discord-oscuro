@@ -2,6 +2,9 @@
 name = "oscuro-core"
 version = "0.1.0"
 edition = "2021"
+description = "Core of a fancy discord bot Oscuro"
+license = "MIT"
+repository = "https://vcs.elnafo.ru/L-Nafaryus/oscuro"
 
 [dependencies]
 poise = "0.6.1"

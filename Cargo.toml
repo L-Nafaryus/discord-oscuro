@@ -2,6 +2,9 @@
 name = "oscuro"
 version = "0.1.0"
 edition = "2021"
+description = "Oscuro - a fancy discord bot"
+license = "MIT"
+repository = "https://vcs.elnafo.ru/L-Nafaryus/oscuro"
 
 [dependencies]
 oscuro-core = { version = "0.1.0", path = "crates/oscuro-core" }
