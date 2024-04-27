@@ -54,6 +54,7 @@
                 buildInputs = [ 
                     fenix-pkgs.complete.toolchain 
                     bonfire-pkgs.cargo-shuttle 
+                    pkgs.cargo-release
                 ];
             };
         });
