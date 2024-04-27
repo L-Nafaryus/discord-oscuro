@@ -4,6 +4,9 @@ version = "0.1.0"
 edition = "2021"
 publish = false
 
+[package.metadata.release]
+release = false
+
 [dependencies]
 oscuro-core = { version = "0.1.0", path = "../oscuro-core" }
 shuttle-runtime = "0.43.0"
