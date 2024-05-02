@@ -1,0 +1,38 @@
+name: "Test, build and push caches"
+
+on:
+  push:
+    branches:
+      - master
+
+jobs:
+  test:
+    runs-on: debian-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: "0"
+      - uses: cachix/install-nix-action@v26
+        with:
+          nix_path: nixpkgs=channel:nixos-unstable
+          extra_nix_config: |
+            experimental-features = nix-command flakes
+      - run: nix flake check
+
+  build:
+    runs-on: debian-latest
+    needs: test
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: "0"
+      - uses: cachix/install-nix-action@v26
+        with:
+          nix_path: nixpkgs=channel:nixos-unstable
+          extra_nix_config: |
+            experimental-features = nix-command flakes
+      - uses: cachix/cachix-action@v14
+        with:
+          name: bonfire
+          authToken: "${{ secrets.CACHIX_AUTH_TOKEN }}"
+      - run: nix build -L

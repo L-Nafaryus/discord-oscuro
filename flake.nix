@@ -10,11 +10,11 @@
         bonfire = {
             url = "github:L-Nafaryus/bonfire";
         };
+        nixpkgs.follows = "bonfire/nixpkgs";
     };
 
-    outputs = { self, bonfire, ... }:
+    outputs = { self, nixpkgs, bonfire, ... }:
     let
-        nixpkgs = bonfire.inputs.nixpkgs;
         forAllSystems = nixpkgs.lib.genAttrs [ "x86_64-linux" ];
         nixpkgsFor = forAllSystems (system: import nixpkgs { inherit system; });
     in
@@ -48,7 +48,6 @@
             pkgs = nixpkgsFor.${system};
             bonfire-pkgs = bonfire.packages.${system};
             fenix-pkgs = bonfire.inputs.fenix.packages.${system};
-            crane-lib = bonfire.inputs.crane.lib.${system};
         in {
             default = pkgs.mkShell {
                 buildInputs = [ 
@@ -146,7 +145,6 @@
         };
 
         nixosConfigurations.oscuro = nixpkgs.lib.nixosSystem {
-            description = "Oscuro";
             system = "x86_64-linux";
             modules = [
                 self.nixosModules.oscuro
@@ -158,7 +156,7 @@
 
                     services.oscuro = {
                         enable = true;
-                        discordToken = null;
+                        discordToken = "";  # insert token
                     };
 
                     system.stateVersion = "24.05";
