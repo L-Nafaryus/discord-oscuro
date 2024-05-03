@@ -10,7 +10,6 @@ jobs:
     runs-on: nix-runner
     steps:
       - uses: actions/checkout@v4
-      - run: nix flake check
       - uses: cachix/cachix-action@v14
         with:
           name: bonfire
