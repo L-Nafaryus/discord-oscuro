@@ -15,4 +15,4 @@ tracing-subscriber = { version = "0.3.18", features = ["env-filter"] }
 
 [workspace]
 resolver = "2"
-members = ["crates/oscuro-core", "crates/oscuro-shuttle"]
+members = ["crates/oscuro-core", "crates/oscuro-shuttle", "crates/oscuro-telegram"]

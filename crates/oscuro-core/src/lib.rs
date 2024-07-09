@@ -5,6 +5,9 @@ pub mod errors;
 use errors::BoxedError;
 use poise::serenity_prelude::{self as serenity, prelude::TypeMapKey, Client};
 
+use teloxide::prelude::*;
+use teloxide::types::Recipient;
+
 #[derive(Debug, Clone)]
 pub struct AppState {
     pub config: config::Config,
@@ -56,6 +59,16 @@ async fn event_handler(
     match event {
         serenity::FullEvent::Ready { data_about_bot, .. } => {
             println!("Logged in as {}", data_about_bot.user.name);
+        }
+        serenity::FullEvent::Message { new_message } => {
+            println!("{:?}", new_message.clone());
+            let bot = Bot::from_env();
+            bot.send_message(
+                Recipient::Id(ChatId(-4221527632)),
+                new_message.author.name.clone(),
+            )
+            .await
+            .expect("err");
         }
         _ => {}
     }
