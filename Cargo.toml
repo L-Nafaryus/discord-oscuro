@@ -1,18 +1,24 @@
 [package]
 name = "oscuro"
-version = "0.1.0"
+version = "0.1.1"
 edition = "2021"
-description = "Oscuro - a fancy discord bot"
+description = "Oscuro is a fancy multibot"
 license = "MIT"
 repository = "https://vcs.elnafo.ru/L-Nafaryus/oscuro"
 publish = ["vcs-elnafo"]
 
 [dependencies]
-oscuro-core = { version = "0.1.0", path = "crates/oscuro-core", registry = "vcs-elnafo" }
+async-process = "2.2.3"
+poise = "0.6.1"
+rand = "0.8.5"
+serde = { version = "1.0.204", features = ["derive"] }
+serde_json = "1.0.120"
+teloxide = { version = "0.12.2", features = ["macros"] }
 tokio = { version = "1.26.0", features = ["macros", "rt-multi-thread"] }
+toml = "0.8.15"
 tracing = "0.1.40"
 tracing-subscriber = { version = "0.3.18", features = ["env-filter"] }
 
 [workspace]
 resolver = "2"
-members = ["crates/oscuro-core", "crates/oscuro-shuttle", "crates/oscuro-telegram"]
+members = []

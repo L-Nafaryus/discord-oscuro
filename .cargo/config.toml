@@ -1,5 +1,5 @@
 [registry]
 default = "crates-io"
 
-[registries.vcs-elnafo]
+[registries.elnafo-vcs]
 index = "sparse+https://vcs.elnafo.ru/api/packages/L-Nafaryus/cargo/"

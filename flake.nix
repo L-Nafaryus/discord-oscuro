@@ -1,14 +1,23 @@
 {
-  description = "Oscuro - a fancy discord bot";
+  description = "Oscuro is a fancy multibot";
 
   nixConfig = {
-    extra-substituters = ["https://bonfire.cachix.org"];
-    extra-trusted-public-keys = ["bonfire.cachix.org-1:mzAGBy/Crdf8NhKail5ciK7ZrGRbPJJobW6TwFb7WYM="];
+    extra-substituters = [
+      "https://cache.elnafo.ru"
+      "https://bonfire.cachix.org"
+    ];
+    extra-trusted-public-keys = [
+      "cache.elnafo.ru:j3VD+Hn+is2Qk3lPXDSdPwHJQSatizk7V82iJ2RP1yo="
+      "bonfire.cachix.org-1:mzAGBy/Crdf8NhKail5ciK7ZrGRbPJJobW6TwFb7WYM="
+    ];
   };
 
   inputs = {
     bonfire = {
       url = "github:L-Nafaryus/bonfire";
+      inputs = {
+        oscuro.follows = "";
+      };
     };
     nixpkgs.follows = "bonfire/nixpkgs";
   };
@@ -19,49 +28,47 @@
     bonfire,
     ...
   }: let
-    forAllSystems = nixpkgs.lib.genAttrs ["x86_64-linux"];
-    nixpkgsFor = forAllSystems (system: import nixpkgs {inherit system;});
+    pkgs = nixpkgs.legacyPackages.x86_64-linux;
+    lib = pkgs.lib;
+    fenixPkgs = bonfire.inputs.fenix.packages.x86_64-linux;
+    craneLib = (bonfire.inputs.crane.mkLib pkgs).overrideToolchain fenixPkgs.complete.toolchain;
   in {
-    packages = forAllSystems (system: let
-      pkgs = nixpkgsFor.${system};
-      crane-lib = bonfire.inputs.crane.lib.${system};
+    packages.x86_64-linux = rec {
+      oscuro = let
+        common = {
+          pname = "oscuro";
+          version = "0.1.0";
 
-      src = pkgs.lib.cleanSourceWith {
-        src = ./.;
-        filter = path: type: (crane-lib.filterCargoSources path type);
-      };
+          src = pkgs.lib.cleanSourceWith {
+            src = ./.;
+            filter = path: type: (craneLib.filterCargoSources path type);
+          };
 
-      common = {
-        inherit src;
-        pname = "oscuro";
-        version = "0.1.0";
-        strictDeps = true;
-      };
+          strictDeps = true;
 
-      cargoArtifacts = crane-lib.buildDepsOnly common;
-    in {
-      oscuro = crane-lib.buildPackage (common // {inherit cargoArtifacts;});
+          nativeBuildInputs = [pkgs.pkg-config];
 
-      default = self.packages.${system}.oscuro;
-    });
+          buildInputs = [pkgs.openssl];
+        };
 
-    devShells = forAllSystems (system: let
-      pkgs = nixpkgsFor.${system};
-      bonfire-pkgs = bonfire.packages.${system};
-      fenix-pkgs = bonfire.inputs.fenix.packages.${system};
-    in {
-      default = pkgs.mkShell {
-        buildInputs = [
-          fenix-pkgs.complete.toolchain
-          bonfire-pkgs.cargo-shuttle
-          pkgs.cargo-release
-          pkgs.pkg-config
-          pkgs.openssl
-        ];
-      };
-    });
+        cargoArtifacts = craneLib.buildDepsOnly common;
+      in
+        craneLib.buildPackage (common // {inherit cargoArtifacts;});
 
-    nixosModules = {
+      default = oscuro;
+    };
+
+    devShells.x86_64-linux.default = pkgs.mkShell {
+      nativeBuildInputs = [pkgs.pkg-config];
+      buildInputs = [
+        fenixPkgs.complete.toolchain
+        pkgs.cargo-release
+        pkgs.openssl
+      ];
+      LD_LIBRARY_PATH = lib.makeLibraryPath [pkgs.openssl];
+    };
+
+    nixosModules = rec {
       oscuro = {
         config,
         lib,
@@ -148,7 +155,7 @@
           };
         };
 
-      default = self.nixosModules.oscuro;
+      default = oscuro;
     };
 
     nixosConfigurations.oscuro = nixpkgs.lib.nixosSystem {

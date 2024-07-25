@@ -1,34 +1,76 @@
-use oscuro_core::{client, config::Config, AppState};
-use std::env;
+mod config;
+mod discord;
+mod errors;
+mod telegram;
+
+use config::Config;
+
+use tokio::signal;
+use tokio::task::JoinSet;
 
 #[tokio::main]
-async fn main() -> Result<(), Box<dyn std::error::Error>> {
+async fn main() -> Result<(), errors::BoxedError> {
     tracing_subscriber::fmt()
         .with_target(false)
         .compact()
         .init();
 
-    let mut config = match Config::open(Config::data_dir()?.join("config.toml").as_path()) {
+    tracing::info!("Working directory: {:?}", Config::data_dir()?);
+
+    let config = match Config::open(Config::data_dir()?.join("config.toml").as_path()) {
         Ok(config) => config,
-        Err(_) => Config::default(),
-    };
+        Err(err) => {
+            tracing::debug!("{}", err);
+            tracing::info!("Using default configuration");
+            Config::default()
+        }
+    }
+    .with_env();
 
-    if let Ok(token) = env::var("DISCORD_TOKEN") {
-        config.discord_token = token;
-    };
+    let mut runset = JoinSet::new();
 
-    if config.discord_token.is_empty() {
-        tracing::error!("Missing discord token");
+    if !config.clone().discord_token.is_some() {
+        tracing::warn!("Missing discord token");
+    } else {
+        let mut discord_client = discord::Client::new(config.clone())
+            .await
+            .expect("Failed to create discord client");
+
+        runset.spawn(async move {
+
+            let res = discord_client.start().await;
+            if let Err(err) = res {
+                tracing::error!("{}", err);
+            }
+        });
     }
 
-    let state = AppState { config };
+    if !config.clone().telegram_token.is_some() {
+        tracing::warn!("Missing telegram token");
+    } else {
+        let telegram_client = telegram::Client::new(config);
 
-    client(state)
-        .await
-        .expect("Failed to create client")
-        .start()
-        .await
-        .expect("Failed to start client");
+        runset.spawn(async move {
+            let res = telegram_client.start().await;
+            if let Err(err) = res {
+                tracing::error!("{}", err);
+            }
+        });
+    }
+
+    while let Some(res) = runset.join_next().await {
+        if let Err(err) = res {
+            tracing::error!("{}", err);
+        }
+    }
+
+    match signal::ctrl_c().await {
+        Ok(()) => {}
+        Err(err) => {
+            eprintln!("Unable to listen for shutdown signal: {}", err);
+            // we also shut down in case of error
+        }
+    }
 
     Ok(())
 }

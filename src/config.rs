@@ -1,10 +1,12 @@
+use std::env;
 use std::fs;
 
 use serde::{Deserialize, Serialize};
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct Config {
-    pub discord_token: String,
+    pub discord_token: Option<String>,
+    pub telegram_token: Option<String>,
 }
 
 impl Config {
@@ -28,12 +30,24 @@ impl Config {
     pub fn write(&self, path: &std::path::Path) -> Result<(), ConfigError> {
         Ok(fs::write(path, self.to_string()?)?)
     }
+
+    pub fn with_env(mut self) -> Self {
+        if let Ok(token) = env::var("OSCURO_DISCORD_TOKEN") {
+            self.discord_token = Some(token);
+        };
+        if let Ok(token) = env::var("OSCURO_TELEGRAM_TOKEN") {
+            self.telegram_token = Some(token);
+        };
+
+        self
+    }
 }
 
 impl Default for Config {
     fn default() -> Self {
         Self {
-            discord_token: String::new(),
+            discord_token: Some(String::new()),
+            telegram_token: Some(String::new()),
         }
     }
 }
@@ -58,10 +72,10 @@ impl std::error::Error for ConfigError {}
 impl std::fmt::Display for ConfigError {
     fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
         match self {
-            Self::Parse => write!(f, "Failed to parse Config from string"),
+            Self::Parse => write!(f, "Failed to parse config from string"),
             Self::StringParse => write!(f, "Failed to parse environment variable"),
             Self::Serialize => write!(f, "Failed to serialize Config to TOML"),
-            Self::IO => write!(f, "Faild to write file"),
+            Self::IO => write!(f, "Failed to write file"),
         }
     }
 }
