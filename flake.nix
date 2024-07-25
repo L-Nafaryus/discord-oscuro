@@ -58,6 +58,10 @@
       default = oscuro;
     };
 
+    hydraJobs = {
+      packages = self.packages;
+    };
+
     devShells.x86_64-linux.default = pkgs.mkShell {
       nativeBuildInputs = [pkgs.pkg-config];
       buildInputs = [

@@ -6,6 +6,12 @@ on:
       - master
 
 jobs:
+  check:
+    runs-on: nix-runner 
+    steps:
+      - uses: actions/checkout@v4 
+      - run: |
+          NIXPKGS_ALLOW_BROKEN=1 nix flake check --allow-import-from-derivation --keep-going --impure
   build:
     runs-on: nix-runner
     steps:
