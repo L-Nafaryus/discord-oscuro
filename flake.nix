@@ -36,9 +36,6 @@
     packages.x86_64-linux = rec {
       oscuro = let
         common = {
-          pname = "oscuro";
-          version = "0.1.0";
-
           src = pkgs.lib.cleanSourceWith {
             src = ./.;
             filter = path: type: (craneLib.filterCargoSources path type);
@@ -46,14 +43,23 @@
 
           strictDeps = true;
 
-          nativeBuildInputs = [pkgs.pkg-config];
+          nativeBuildInputs = [pkgs.pkg-config pkgs.makeWrapper];
 
           buildInputs = [pkgs.openssl];
         };
 
         cargoArtifacts = craneLib.buildDepsOnly common;
       in
-        craneLib.buildPackage (common // {inherit cargoArtifacts;});
+        craneLib.buildPackage (common
+          // rec {
+            pname = "oscuro";
+            version = "0.1.0";
+            inherit cargoArtifacts;
+            postInstall = ''
+              wrapProgram $out/bin/${pname} \
+                --prefix LD_LIBRARY_PATH : ${pkgs.lib.makeLibraryPath common.buildInputs} \
+            '';
+          });
 
       default = oscuro;
     };
